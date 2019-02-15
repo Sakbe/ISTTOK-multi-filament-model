@@ -40,7 +40,7 @@ end
 %%%Experimental mesurements[Wb]
 
 Mirnv_10_fact=1.2803;
-time_index=find(time == 116); %%% Select a time moment where there is plasma current! in [ms]
+time_index=find(time == 117); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
 
@@ -64,27 +64,33 @@ Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 %%%%%% 6 sorrounding filaments - 1 degree of freedom (I)
 
 %%%%Lets put boundaries
-low_bnd=[0,0,0,0,0,0,0,0,0];
-high_bnd=[1,55,4000,4000,4000,4000,4000,4000,4000];
+low_bnd=[-3,40,0,0,0,0,0,0,0];
+high_bnd=[3,55,4000,4000,4000,4000,4000,4000,4000];
 
+A=-eye(9);
+A(1:2,1:9)=0;
+b=zeros(9,1);
 
 % fval_multi=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
 
-fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+% fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+
+fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],A,b)
 
 %%%Externa fluxes corrected
 
-%fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
+% fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
 
-fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+% fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
 
+fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],A,b)
  
 %%%%Lets check how close is our minimization values to the experimental
 %%%%ones by applaying Biot-Savart with them 
 
 xx_multi=BmagnMultiModule(fval_multi(1),fval_multi(2),fval_multi(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
 
-xx_multi_corr=BmagnMultiModule(fval_multi(1),fval_multi(2),fval_multi(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
+xx_multi_corr=BmagnMultiModule(fval_multi_corr(1),fval_multi_corr(2),fval_multi_corr(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
 
 
 %%%% Error
@@ -119,12 +125,12 @@ xlabel('Mirnov #')
 ylabel('Optimization [mT]')
 axis equal
 
-return
+
 %% 
 
 %%%%%% Plasma, vessel and mirnov coil plot
 
-close all
+
 
 figure(3)
 plot(xvess,yvess,'k','linewidth',2)
