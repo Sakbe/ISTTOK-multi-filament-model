@@ -40,6 +40,7 @@ end
 Bmirn=0.01*Bmirn;%fator de 0.01 pra ter [T] 
 
 
-error=sum(abs(Mirnv_B_exp-Bmirn));
+error=sum(abs(Mirnv_B_exp-Bmirn))/1;
+% error=sqrt(sum(Mirnv_B_exp(:)-Bmirn(:))^2/length(Bmirn));
 
 end

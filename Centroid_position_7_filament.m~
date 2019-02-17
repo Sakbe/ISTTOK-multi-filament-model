@@ -75,7 +75,7 @@ b=zeros(9,1);
 
 % fval_multi=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
 
-fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
 
 % fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],A,b)
 
@@ -83,7 +83,7 @@ fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),
 
 % fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
 
-fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
 
 % fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],A,b)
  
@@ -99,8 +99,8 @@ xx_multi_corr=BmagnMultiModule(fval_multi_corr(1),fval_multi_corr(2),fval_multi_
 
 RMSE_multi=sqrt(mean((xx_multi(:)-Mirnv_B_exp(:)))^2);
 RMSE_multi_corr=sqrt(mean((xx_multi_corr(:)-Mirnv_B_exp_corr(:)))^2);
-Error_multi=sum(abs(xx_multi-Mirnv_B_exp))/12;
-Error_multi_corr=sum(abs(xx_multi_corr-Mirnv_B_exp_corr))/12;
+Error_multi=sum(abs(xx_multi-Mirnv_B_exp));
+Error_multi_corr=sum(abs(xx_multi_corr-Mirnv_B_exp_corr));
 
 %%%%%%%%%%Plotting
 %%%%%%Multifilament plots
