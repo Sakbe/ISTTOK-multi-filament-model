@@ -30,7 +30,7 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=5; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=4; %%% in [cm] (distance from the center of the chamber to the filaments)
 
 for i=2:7
     R_filaments(i)=(46)+radius*cosd(degr);
@@ -71,7 +71,10 @@ for i=1:12
     end
 end
 
+% Mfp=Mfp/mean(mean(Mfp));
 Mpf=pinv(Mfp);
-I_filament=Mpf*(Mirnv_B_exp_corr')
 
+
+
+I_filament=Mpf*(Mirnv_flux_corr')
 toc

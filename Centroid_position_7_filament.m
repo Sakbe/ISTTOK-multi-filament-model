@@ -29,7 +29,7 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=4; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=5; %%% in [cm] (distance from the center of the chamber to the filaments)
 
 for i=2:7
     R_filaments(i)=(46)+radius*cosd(degr);
@@ -41,7 +41,7 @@ end
 %%%Experimental mesurements[Wb]
 
 Mirnv_10_fact=1.2803;
-time_ins=116;
+time_ins=111;
 time_index=find(time == time_ins); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
@@ -67,11 +67,11 @@ Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 
 %%%%Lets put boundaries
 if Mirnv_B_exp_corr(1)>0
-low_bnd=[-0.1,0,-4000,-4000,-4000,-4000,-4000,-4000,-4000];
+low_bnd=[0,0,-4000,-4000,-4000,-4000,-4000,-4000,-4000];
 high_bnd=[1,55,0,0,0,0,0,0,0];
 Ini_cond=[0.5,46.5,-1000,-500,-500,-500,-500,-500,-500];
 else
-    low_bnd=[-0.1,0,0,0,0,0,0,0,0];
+    low_bnd=[0,0,0,0,0,0,0,0,0];
 high_bnd=[1,55,4000,4000,4000,4000,4000,4000,4000];
 Ini_cond=[0.5,46.5,1000,500,500,500,500,500,500];
 end

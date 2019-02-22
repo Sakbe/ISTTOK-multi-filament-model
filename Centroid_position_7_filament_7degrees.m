@@ -29,7 +29,7 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=4; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=4.7; %%% in [cm] (distance from the center of the chamber to the filaments)
 
 for i=2:7
     R_filaments(i)=(46)+radius*cosd(degr);
@@ -41,7 +41,7 @@ end
 %%%Experimental mesurements[Wb]
 
 Mirnv_10_fact=1.2803;
-time_ins=110;
+time_ins=125;
 time_index=find(time == time_ins ); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
@@ -112,6 +112,20 @@ RMSE_multi_corr=sqrt(mean((xx_multi_corr(:)-Mirnv_B_exp_corr(:)))^2);
 % Error_multi=sum(abs(xx_multi-Mirnv_B_exp))/12;
 Error_multi_corr=sum(abs(xx_multi_corr-Mirnv_B_exp_corr))/12;
 
+%%%% Matrix whose elements gives the contribution  to the measuremnt i  to
+%%%% a unitary current in the filament j [T]
+for i=1:12
+    for j=1:7
+   
+         Mfp(i,j)=Bmagnmirnv(z_filaments(j),R_filaments(j),1,R_mirn(i),z_mirn(i)) ;
+    end
+end
+
+Mpf=pinv(Mfp);
+I_filament=Mpf*(Mirnv_B_exp_corr')
+xx_multi_theo=BmagnMultiModule(z_filaments(1),R_filaments(1),I_filament,R_filaments,z_filaments,R_mirn,z_mirn);
+
+RMSE_optim_theo=sqrt(mean((xx_multi_corr(:)-xx_multi_theo(:)))^2);
 %%%%%%%%%%Plotting
 %%%%%%Multifilament plots
 
@@ -131,9 +145,10 @@ figure(9)
 plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp_corr,'-o')
 hold on
 plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_corr,'-*')
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_theo,'-s')
 grid on
 title(['Shot #45410  t= ',num2str(time_ins), '  Ip~4.1[kA] (Multifilament flux corrected)'])
-legend('Experimental Data corrected','Biot-savart  (optimized )')
+legend('Experimental Data corrected','Biot-savart  (optimized )','Theo-multifilament Mpf')
 xlabel('Mirnov #')
 ylabel('Optimization [mT]')
 axis equal
@@ -145,27 +160,27 @@ axis equal
 
 
 
-figure(3)
-plot(xvess,yvess,'k','linewidth',2)
-hold on
-plot(46,0,'.m','MarkerSize',790)
-plot(R_mirn,z_mirn,'sk','MarkerSize',17)
-
-% plot(fval_multi_corr(2),fval_multi_corr(1),'.k','MarkerSize',20)
-for i=1:7
-    plot(R_filaments(i),z_filaments(i),'.b','MarkerSize',20)
-end
-    for i = 1:12
-    text(R_mirn(i),z_mirn(i),num2str(i),'Color','r','FontSize',13) 
-
-
-end
-
-text(57,0,'LFS','FontSize',15)
-text(33,0,'HFS','FontSize',15)
-ylim([-11,11])
-xlabel('R[cm]')
-ylabel('Z[cm]')
-grid on
-axis equal
+% figure(3)
+% plot(xvess,yvess,'k','linewidth',2)
+% hold on
+% plot(46,0,'.m','MarkerSize',790)
+% plot(R_mirn,z_mirn,'sk','MarkerSize',17)
+% 
+% % plot(fval_multi_corr(2),fval_multi_corr(1),'.k','MarkerSize',20)
+% for i=1:7
+%     plot(R_filaments(i),z_filaments(i),'.b','MarkerSize',20)
+% end
+%     for i = 1:12
+%     text(R_mirn(i),z_mirn(i),num2str(i),'Color','r','FontSize',13) 
+% 
+% 
+% end
+% 
+% text(57,0,'LFS','FontSize',15)
+% text(33,0,'HFS','FontSize',15)
+% ylim([-11,11])
+% xlabel('R[cm]')
+% ylabel('Z[cm]')
+% grid on
+% axis equal
 toc
