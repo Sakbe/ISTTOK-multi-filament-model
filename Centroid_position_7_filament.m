@@ -41,8 +41,8 @@ end
 %%%Experimental mesurements[Wb]
 
 Mirnv_10_fact=1.2803;
-time_ins=117;
-time_index=find(time == 117); %%% Select a time moment where there is plasma current! in [ms]
+time_ins=116;
+time_index=find(time == time_ins); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
 
@@ -66,8 +66,15 @@ Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 %%%%%% 6 sorrounding filaments - 1 degree of freedom (I)
 
 %%%%Lets put boundaries
-low_bnd=[-5,45,0,0,0,0,0,0,0];
-high_bnd=[5,55,4000,4000,4000,4000,4000,4000,4000];
+if Mirnv_B_exp_corr(1)>0
+low_bnd=[-0.1,0,-4000,-4000,-4000,-4000,-4000,-4000,-4000];
+high_bnd=[1,55,0,0,0,0,0,0,0];
+Ini_cond=[0.5,46.5,-1000,-500,-500,-500,-500,-500,-500];
+else
+    low_bnd=[-0.1,0,0,0,0,0,0,0,0];
+high_bnd=[1,55,4000,4000,4000,4000,4000,4000,4000];
+Ini_cond=[0.5,46.5,1000,500,500,500,500,500,500];
+end
 
 A=-eye(9);
 A(1:2,1:9)=0;
@@ -75,7 +82,7 @@ b=zeros(9,1);
 
 % fval_multi=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
 
-fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),Ini_cond,[],[],[],[],low_bnd,high_bnd)
 
 % fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],A,b)
 
@@ -83,7 +90,7 @@ fval_multi=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp,x(1),x(2),x(3),x(4),
 
 % fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
 
-fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],[],[],[],[],low_bnd,high_bnd)
+fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),Ini_cond,[],[],[],[],low_bnd,high_bnd)
 
 % fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],A,b)
  
