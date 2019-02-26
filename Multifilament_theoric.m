@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% Plasma current centroid position reconstruction%%%%%%%%
-%%%%%% Multifilaments,7 filaments , Pitonti's model %%%%%%%%%%
+%%%%%% Multifilaments,7 filaments , SVD matrix %%%%%%%%%%
 tic
 close all
 clear all
@@ -42,8 +42,8 @@ end
 %%%Experimental mesurements[Wb]
 
 Mirnv_10_fact=1.2803;
-time_ins=116;
-time_index=find(time == 116); %%% Select a time moment where there is plasma current! in [ms]
+time_ins=145;
+time_index=find(time == time_ins); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
 
@@ -72,6 +72,34 @@ for i=1:12
 end
 
 Mpf=pinv(Mfp);
-I_filament=Mpf*(Mirnv_B_exp_corr')
+I_filament=Mpf*(Mirnv_B_exp_corr');
+
+%% Calculate Biot-Savart with the current values from SVD decomposition
+xx_multi_SVD=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),I_filament,R_filaments,z_filaments,R_mirn,z_mirn);
+
+% for i=1:12
+%    xx_multi_theo(i) =0;
+%     for j=1:7
+%         
+% xx_multi_theo(i)=Bmagnmirnv(z_filaments(j),R_filaments(j),I_filament(j),R_mirn(i),z_mirn(i)) +xx_multi_theo(i);
+%     end
+% end
+%% Error
+
+RMSE_optim_theo=sqrt(mean((xx_multi_SVD(:)-Mirnv_B_exp_corr(:)))^2);
+
+
+close all
+figure(9)
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp_corr ,'-o')
+hold on
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_SVD,'-s')
+% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mfp*I_filament,'-s')
+grid on
+title(['Shot #45410  t= ',num2str(time_ins), '  Ip= (Multifilament flux corrected)'])
+legend('Experimental Data corrected','Multifilament SVD-Mpf')
+xlabel('Mirnov #')
+ylabel('Optimization [mT]')
+axis equal
 
 toc
