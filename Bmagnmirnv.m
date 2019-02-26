@@ -63,9 +63,7 @@ By=turns*By; %%% units=[uWb / cm^2]
 
 vector=[Z_filament-z_mirnv,R_filament-r_mirnv];%Vector from center of chamber to mirnov center
 unit_vec=[vector]./norm(vector); %% Unit vector
-norm_vec=[-unit_vec(1),unit_vec(2)];%%%  Normal vector, coil direction
- Bmirn=abs(BR*unit_vec(1)+Bz*unit_vec(2));
- Bmirn=sqrt(BR^2+Bz^2+By^2);
- Bmirn=dot([BR,Bz],norm_vec);
+norm_vec=[unit_vec(2),-unit_vec(1)];%%%  Normal vector, coil direction
+ Bmirn=dot([Bz,BR],norm_vec);
 Bmirn=0.01*Bmirn;%fator de 0.01 pra ter [T] 
 end
