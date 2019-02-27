@@ -29,7 +29,7 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=5; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=3.5; %%% in [cm] (distance from the center of the chamber to the filaments)
 
 for i=2:7
     R_filaments(i)=(46)+radius*cosd(degr);
@@ -67,12 +67,12 @@ Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 
 %%%%Lets put boundaries
 if Mirnv_B_exp_corr(1)>0
-low_bnd=[0,0,-4000,-4000,-4000,-4000,-4000,-4000,-4000];
-high_bnd=[1,55,0,0,0,0,0,0,0];
+low_bnd=[-2,43,-4000,-4000,-4000,-4000,-4000,-4000,-4000];
+high_bnd=[2,50,0,0,0,0,0,0,0];
 Ini_cond=[0.5,46.5,-1000,-500,-500,-500,-500,-500,-500];
 else
-    low_bnd=[0,0,0,0,0,0,0,0,0];
-high_bnd=[1,55,4000,4000,4000,4000,4000,4000,4000];
+    low_bnd=[-2,43,0,0,0,0,0,0,0];
+high_bnd=[2,50,4000,4000,4000,4000,4000,4000,4000];
 Ini_cond=[0.5,46.5,1000,500,500,500,500,500,500];
 end
 
@@ -97,9 +97,9 @@ fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),
 %%%%Lets check how close is our minimization values to the experimental
 %%%%ones by applaying Biot-Savart with them 
 
-xx_multi=BmagnMultiModule(fval_multi(1),fval_multi(2),fval_multi(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
+xx_multi=BmagnMultiModule_correct(fval_multi(1),fval_multi(2),fval_multi(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
 
-xx_multi_corr=BmagnMultiModule(fval_multi_corr(1),fval_multi_corr(2),fval_multi_corr(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
+xx_multi_corr=BmagnMultiModule_correct(fval_multi_corr(1),fval_multi_corr(2),fval_multi_corr(3:9),R_filaments,z_filaments,R_mirn,z_mirn);
 
 
 %%%% Error
