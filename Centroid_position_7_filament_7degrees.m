@@ -29,7 +29,7 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=4.7; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=3.5; %%% in [cm] (distance from the center of the chamber to the filaments)
 
 for i=2:7
     R_filaments(i)=(46)+radius*cosd(degr);
@@ -41,7 +41,7 @@ end
 %%%Experimental mesurements[Wb]
 
 Mirnv_10_fact=1.2803;
-time_ins=125;
+time_ins=151;
 time_index=find(time == time_ins ); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
@@ -65,16 +65,17 @@ Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 %%%%% Central filament - 3 dregrees of freedom (z,R,I)
 %%%%%% 6 sorrounding filaments - 1 degree of freedom (I)
 
-%%%%Lets put boundaries
-% if Mirnv_B_exp_corr(1)>0
-% low_bnd=[-4000,-4000,-4000,-4000,-4000,-4000,-4000];
-% high_bnd=[0,0,0,0,0,0,0];
-% Ini_cond=[-1000,-500,-500,-500,-500,-500,-500];
-% else
+%%%Lets put boundaries
+if Mirnv_B_exp_corr(1)>0
+low_bnd=[-4000,-4000,-4000,-4000,-4000,-4000,-4000];
+high_bnd=[0,0,0,0,0,0,0];
+Ini_cond=[-1000,-500,-500,-500,-500,-500,-500];
+else
+
     low_bnd=[0,0,0,0,0,0,0];
 high_bnd=[4000,4000,4000,4000,4000,4000,4000];
 Ini_cond=[1000,500,500,500,500,500,500];
-% end
+end
 
 A=-eye(7);
 b=zeros(7,1);
@@ -92,7 +93,7 @@ b=zeros(7,1);
 
 fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filaments(1),R_filaments(1),x(1),...
     x(2),x(3),x(4),x(5),x(6),x(7),R_filaments,z_filaments,R_mirn,z_mirn),...
-    Ini_cond,[],[],[],[],low_bnd,high_bnd)
+    Ini_cond,[],[],[],[],low_bnd,high_bnd);
 
 % fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],A,b)
  
@@ -102,15 +103,10 @@ fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filament
 % %xx_multi=BmagnMultiModule(z_filaments(1),R_filaments(1),fval_multi,R_filaments,z_filaments,R_mirn,z_mirn);
 % fval_multi_corr =-1.0e+03 *[ 0.0005    1.5328    1.1538    0.3305    0.0001    0.0008    1.1140];
 
-xx_multi_corr=BmagnMultiModule(z_filaments(1),R_filaments(1),fval_multi_corr,R_filaments,z_filaments,R_mirn,z_mirn);
+xx_multi_corr=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),fval_multi_corr,R_filaments,z_filaments,R_mirn,z_mirn);
 
 
-%%%% Error
 
-% RMSE_multi=sqrt(mean((xx_multi(:)-Mirnv_B_exp(:)))^2);
-RMSE_multi_corr=sqrt(mean((xx_multi_corr(:)-Mirnv_B_exp_corr(:)))^2);
-% Error_multi=sum(abs(xx_multi-Mirnv_B_exp))/12;
-Error_multi_corr=sum(abs(xx_multi_corr-Mirnv_B_exp_corr))/12;
 
 %%%% Matrix whose elements gives the contribution  to the measuremnt i  to
 %%%% a unitary current in the filament j [T]
@@ -122,11 +118,19 @@ for i=1:12
 end
 
 Mpf=pinv(Mfp);
-I_filament=Mpf*(Mirnv_B_exp_corr')
-xx_multi_theo=BmagnMultiModule(z_filaments(1),R_filaments(1),I_filament,R_filaments,z_filaments,R_mirn,z_mirn);
+I_filament=Mpf*(Mirnv_B_exp_corr');
 
-RMSE_optim_theo=sqrt(mean((xx_multi_corr(:)-xx_multi_theo(:)))^2);
-%%%%%%%%%%Plotting
+%% Calculate Biot-Savart with the current values from SVD decomposition
+xx_multi_theo=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),I_filament,R_filaments,z_filaments,R_mirn,z_mirn);
+
+%%%% Error
+
+
+RMSE_multi_corr=sqrt(mean((xx_multi_corr(:)-Mirnv_B_exp_corr(:)))^2);
+Error_multi_corr=sum(abs(xx_multi_corr-Mirnv_B_exp_corr))/12;
+RMSE_optim_theo=sqrt(mean((xx_multi_theo(:)-Mirnv_B_exp_corr(:)))^2);
+
+%% Plotting
 %%%%%%Multifilament plots
 
 
