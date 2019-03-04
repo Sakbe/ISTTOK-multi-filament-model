@@ -29,7 +29,7 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=3.5; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=5; %%% in [cm] (distance from the center of the chamber to the filaments)
 
 for i=2:7
     R_filaments(i)=(46)+radius*cosd(degr);
@@ -42,8 +42,8 @@ end
 
 Mirnv_10_fact=1.2803;
 time_ins=151;
-time1=5;
-time2=1015;
+time1=120;
+time2=120;
 time_index=find(time == time_ins ); %%% Select a time moment where there is plasma current! in [ms]
 time_index1=find(time == time1 );
 time_index2=find(time == time2 );
@@ -112,11 +112,11 @@ end
 
 %%%Externa fluxes corrected
 
-% fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,500,500,500,500,500,500,500])
-
-fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filaments(1),R_filaments(1),x(1),...
-    x(2),x(3),x(4),x(5),x(6),x(7),R_filaments,z_filaments,R_mirn,z_mirn),...
-    Ini_cond,[],[],[],[],low_bnd,high_bnd);
+ fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filaments(1),R_filaments(1),x(1),x(2),x(3),x(4),x(5),x(6),x(7),R_filaments,z_filaments,R_mirn,z_mirn),[500,500,500,500,500,500,500])
+% 
+% fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filaments(1),R_filaments(1),x(1),...
+%     x(2),x(3),x(4),x(5),x(6),x(7),R_filaments,z_filaments,R_mirn,z_mirn),...
+%     Ini_cond,[],[],[],[],low_bnd,high_bnd);
 
 % fval_multi_corr=fmincon(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),R_filaments,z_filaments,R_mirn,z_mirn),[0.5,46.5,1000,500,500,500,500,500,500],A,b)
  
@@ -192,34 +192,37 @@ results.B_SVD_corr(:,i)=xx_multi_SVD_corr;
 
 end 
 
-save centroid_position_7 results time_index1 time_index2
+% save centroid_position_7 results time_index1 time_index2
 
 %% Plotting
 %%%%%%Multifilament plots
+close all
 
+figure(8)
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp,'-o')
+hold on
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi,'-*')
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_9,'-*')
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_SVD,'-*')
+grid on
+title('Shot #45410    Ip~4.1[kA] (Multifilament)')
+legend('Experimental Data ','Optimization 7deg','Optimization 9deg','SVD')
+xlabel('Mirnov #')
+ylabel('Optimization [mT]')
+axis equal
 
-% figure(8)
-% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp,'-o')
-% hold on
-% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi,'-*')
-% grid on
-% title('Shot #45410  t=195[ms]  Ip~4.1[kA] (Multifilament)')
-% legend('Experimental Data ','Biot-savart  (optimized )')
-% xlabel('Mirnov #')
-% ylabel('Optimization [mT]')
-% axis equal
-
-% figure(9)
-% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp_corr,'-o')
-% hold on
-% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_corr,'-*')
-% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_theo,'-s')
-% grid on
-% title(['Shot #45410  t= ',num2str(time_ins), '  Ip~4.1[kA] (Multifilament flux corrected)'])
-% legend('Experimental Data corrected','Biot-savart  (optimized )','Theo-multifilament Mpf')
-% xlabel('Mirnov #')
-% ylabel('Optimization [mT]')
-% axis equal
+figure(10)
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp_corr,'-o')
+hold on
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_corr,'-*')
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_corr_9,'-*')
+plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_SVD_corr,'-*')
+grid on
+title('Shot #45410    Ip~4.1[kA] (Multifilament) External flux corrected')
+legend('Experimental Data ','Optimization 7deg','Optimization 9deg','SVD')
+xlabel('Mirnov #')
+ylabel('Optimization [mT]')
+ axis equal
 
 
 %% 
