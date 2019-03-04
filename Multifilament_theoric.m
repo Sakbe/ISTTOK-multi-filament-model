@@ -5,7 +5,7 @@ tic
 close all
 clear all
 %%% Load Shot
-load('shot_45520.mat');
+load('shot_45825.mat');
 time=1e-3*data.time; %%%% time in ms
 
 
@@ -41,8 +41,8 @@ end
 
 %%%Experimental mesurements[Wb]
 
-Mirnv_10_fact=1.2803;
-time_ins=145;
+%Mirnv_10_fact=1.2803;
+time_ins=115;
 time_index=find(time == time_ins); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
@@ -50,10 +50,10 @@ time_index=find(time == time_ins); %%% Select a time moment where there is plasm
 %%%%without external flux correction
 
 Mirnv_flux(:)=data.mirnv_corr(:,time_index);
-Mirnv_flux(10)=Mirnv_10_fact*Mirnv_flux(10);
+%Mirnv_flux(10)=Mirnv_10_fact*Mirnv_flux(10);
 
 Mirnv_flux_corr(:)=data.mirnv_corr_flux(:,time_index);
-Mirnv_flux_corr(10)=Mirnv_10_fact*Mirnv_flux_corr(10);
+%Mirnv_flux_corr(10)=Mirnv_10_fact*Mirnv_flux_corr(10);
 
 %%%%% Let's go from [Wb] to {T]
 %%%% fmincon needs data to be double
