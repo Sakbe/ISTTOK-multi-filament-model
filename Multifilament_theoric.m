@@ -5,7 +5,7 @@ tic
 close all
 clear all
 %%% Load Shot
-load('shot_45825.mat');
+load('shot_45860.mat');
 time=1e-3*data.time; %%%% time in ms
 
 
@@ -30,19 +30,21 @@ z_plsm= 0;
 R_filaments(1)=46;
 z_filaments(1)=0;
 degr=0;
-radius=5; %%% in [cm] (distance from the center of the chamber to the filaments)
+radius=5.0; %%% in [cm] (distance from the center of the chamber to the filaments)
+nfil=11; %%% Number of filaments
+deg_fact=360/(nfil-1);
 
-for i=2:7
+for i=2:nfil
     R_filaments(i)=(46)+radius*cosd(degr);
     z_filaments(i)=radius*sind(degr);
-    degr=degr+60;
+    degr=degr+deg_fact;
 end
 
 
 %%%Experimental mesurements[Wb]
 
 %Mirnv_10_fact=1.2803;
-time_ins=115;
+time_ins=120;
 time_index=find(time == time_ins); %%% Select a time moment where there is plasma current! in [ms]
 
 %%%%%%%%%% Find the exprimental values for that time moment
@@ -65,7 +67,7 @@ Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 %%%% Matrix whose elements gives the contribution  to the measuremnt i  to
 %%%% a unitary current in the filament j [T]
 for i=1:12
-    for j=1:7
+    for j=1:nfil
    
          Mfp(i,j)=Bmagnmirnv(z_filaments(j),R_filaments(j),1,R_mirn(i),z_mirn(i)) ;
     end
@@ -85,10 +87,35 @@ xx_multi_SVD=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),I_filament,R
 %     end
 % end
 %% Error
+RMSE_optim_theo=sqrt(mean((xx_multi_SVD(:)-Mirnv_B_exp_corr(:)).^2));
 
-RMSE_optim_theo=sqrt(mean((xx_multi_SVD(:)-Mirnv_B_exp_corr(:)))^2);
 
 
+%% Compute Centroid position
+I_filament_all=Mpf*(data.mirnv_corr_flux)/(49*50*1e-6);
+z0=0.01*sum((I_filament_all.*z_filaments'))./sum(I_filament_all);
+r0=0.01*sqrt(sum(I_filament_all.*((R_filaments.^2)'))./sum(I_filament_all))-0.46;
+sumIfil=sum(I_filament_all);
+for(i=1:length(z0))
+if(imag(z0(i)~=0))
+z0(i)=0.085;
+end
+if(z0(i)>0.085||z0(i) <-0.085)
+z0(i)=0.085;
+end
+end
+
+for(i=1:length(r0))
+if(imag(r0(i))~=0)
+r0(i)=0.085;
+end
+if(r0(i)>0.085||r0(i) <-0.085)
+r0(i)=0.085;
+end
+end
+
+
+%% Plotting
 close all
 figure(9)
 plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp_corr ,'-o')
@@ -102,4 +129,12 @@ xlabel('Mirnov #')
 ylabel('Optimization [mT]')
 axis equal
 
+figure(10)
+plot(time,sumIfil)
+hold on
+plot(time,data.Ip_magn)
+grid on
+xlabel('Time [ms]')
+ylabel('Current [A]')
+legend('sum (I fil)','Plasma current')
 toc
