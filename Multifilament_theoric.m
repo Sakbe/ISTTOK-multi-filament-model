@@ -29,9 +29,9 @@ z_plsm= 0;
 
 R_filaments(1)=46;
 z_filaments(1)=0;
-degr=0;
+degr=10;
 radius=5.0; %%% in [cm] (distance from the center of the chamber to the filaments)
-nfil=11; %%% Number of filaments
+nfil=12; %%% Number of filaments
 deg_fact=360/(nfil-1);
 
 for i=2:nfil
@@ -62,8 +62,13 @@ Mirnv_flux_corr(:)=data.mirnv_corr_flux(:,time_index);
 Mirnv_B_exp=double(Mirnv_flux/(50*49e-6)); %%%% [T]
 Mirnv_B_exp_corr=double(Mirnv_flux_corr/(50*49e-6)); %%%% [T]
 
+%%%%% Minimization 7 degrees of freedom
+%   fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filaments(1),R_filaments(1),x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9),x(10),x(11),R_filaments,z_filaments,R_mirn,z_mirn,nfil),[500,500,500,500,500,500,500,500,500,500,500])
+%   fval_multi_corr=fminsearch(@(x) ErrorMirnFuncMultiFilam(Mirnv_B_exp_corr,z_filaments(1),R_filaments(1),x,R_filaments,z_filaments,R_mirn,z_mirn,nfil),[500,500,500,500,500,500,500,500,500,500,500])
 
- 
+
+ %%
+% xx_multi_corr=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),fval_multi_corr,R_filaments,z_filaments,R_mirn,z_mirn,nfil);
 %%%% Matrix whose elements gives the contribution  to the measuremnt i  to
 %%%% a unitary current in the filament j [T]
 for i=1:12
@@ -77,7 +82,7 @@ Mpf=pinv(Mfp);
 I_filament=Mpf*(Mirnv_B_exp_corr');
 
 %% Calculate Biot-Savart with the current values from SVD decomposition
-xx_multi_SVD=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),I_filament,R_filaments,z_filaments,R_mirn,z_mirn);
+xx_multi_SVD=BmagnMultiModule_correct(z_filaments(1),R_filaments(1),I_filament,R_filaments,z_filaments,R_mirn,z_mirn,nfil);
 
 % for i=1:12
 %    xx_multi_theo(i) =0;
@@ -93,9 +98,12 @@ RMSE_optim_theo=sqrt(mean((xx_multi_SVD(:)-Mirnv_B_exp_corr(:)).^2));
 
 %% Compute Centroid position
 I_filament_all=Mpf*(data.mirnv_corr_flux)/(49*50*1e-6);
-z0=0.01*sum((I_filament_all.*z_filaments'))./sum(I_filament_all);
-r0=0.01*sqrt(sum(I_filament_all.*((R_filaments.^2)'))./sum(I_filament_all))-0.46;
-sumIfil=sum(I_filament_all);
+for(i=1:length(I_filament_all))
+z0(i)=0.01*sum((z_filaments'.*I_filament_all(:,i)))./sum(I_filament_all(:,i));
+r0(i)=0.01*sqrt(sum((R_filaments'.^2).*I_filament_all(:,i))./sum(I_filament_all(:,i)))-0.46;
+sumIfil(i)=sum(I_filament_all(:,i));
+end
+
 for(i=1:length(z0))
 if(imag(z0(i)~=0))
 z0(i)=0.085;
@@ -121,10 +129,11 @@ figure(9)
 plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mirnv_B_exp_corr ,'-o')
 hold on
 plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_SVD,'-s')
+% plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*xx_multi_corr,'-*')
 % plot([1,2,3,4,5,6,7,8,9,10,11,12],1000*Mfp*I_filament,'-s')
 grid on
 title(['Shot #45410  t= ',num2str(time_ins), '  Ip= (Multifilament flux corrected)'])
-legend('Experimental Data corrected','Multifilament SVD-Mpf')
+legend('Experimental Data corrected','Multifilament SVD-Mpf','Fminsearch')
 xlabel('Mirnov #')
 ylabel('Optimization [mT]')
 axis equal
@@ -137,4 +146,46 @@ grid on
 xlabel('Time [ms]')
 ylabel('Current [A]')
 legend('sum (I fil)','Plasma current')
+
+%%
+figure(3)
+plot(xvess,yvess,'k','linewidth',2)
+hold on
+plot(46,0,'.m','MarkerSize',790)
+plot(R_mirn,z_mirn,'sk','MarkerSize',17)
+
+% plot(fval_multi_corr(2),fval_multi_corr(1),'.k','MarkerSize',20)
+for i=1:nfil
+    plot(R_filaments(i),z_filaments(i),'.b','MarkerSize',20)
+end
+    for i = 1:12
+    text(R_mirn(i),z_mirn(i),num2str(i),'Color','r','FontSize',13) 
+
+
+end
+plot([35,57],[0,0])
+plot([46,46],[-9,9],'k')
+text(57,0,'LFS','FontSize',15)
+text(33,0,'HFS','FontSize',15)
+ylim([-11,11])
+xlabel('R[cm]')
+ylabel('Z[cm]')
+grid on
+axis equal
 toc
+return
+
+
+figure(1)
+plot(time,R0)
+grid on
+xlabel('Time [ms]')
+ylabel('Position [m]')
+title('Radial centroid position')
+
+figure(2)
+plot(time,z0)
+grid on
+xlabel('Time [ms]')
+ylabel('Position [m]')
+title('Vertical centroid position')

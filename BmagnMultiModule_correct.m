@@ -1,6 +1,6 @@
-function Bmirn=BmagnMultiModule_correct(Z_filament,R_filament,I_filaments,R_filaments,z_filaments,r_mirnv,z_mirnv)
+function Bmirn=BmagnMultiModule_correct(Z_filament,R_filament,I_filaments,R_filaments,z_filaments,r_mirnv,z_mirnv,nfil)
 
-nfil=11;
+
 for i=1:12
     for j=1:nfil
 vector(i,j,[1,2])=[z_filaments(j)-z_mirnv(i),R_filaments(j)-r_mirnv(i)];%Vector from center of chamber to mirnov center
